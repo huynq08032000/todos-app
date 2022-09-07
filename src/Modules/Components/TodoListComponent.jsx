@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import 'antd/dist/antd.css';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Table, Space, Switch, Button } from 'antd';
-import { useLayoutEffect } from 'react';
 const TodoListComponent = ({handleAddItem}) => {
     const columns = [
         {
