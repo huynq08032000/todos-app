@@ -5,7 +5,27 @@ import { Button, Input, Row, Col } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 const FormAddComponent = () => {
-    const [formValue, setFormValue] = useState({ name: '', des: '' })
+    const [formValue, setFormValue] = useState({ name: '', des: '', checked : false })
+    const handleAddItem = () => {
+        console.log('Add item')
+        console.log(formValue)
+        // Add to local storerage, and check localstorerage is context api ? 
+        let todoList = localStorage.getItem('todoList');
+        if (todoList){ 
+            let arr = JSON.parse(todoList)
+            arr.push(formValue)
+            localStorage.setItem('todoList', JSON.stringify(arr))
+        } else {
+            localStorage.setItem('todoList', JSON.stringify([formValue]))
+        }
+        setFormValue(prevForm => {
+            return {
+                ...prevForm,
+                name : '',
+                des : '',
+            }
+        })
+    }
     return (
         <div className='form-add-container'>
             <Row>
@@ -37,7 +57,7 @@ const FormAddComponent = () => {
                 </Col>
                 <Col span={2}>
                     <div className='btn-submit-form'>
-                        <Button type='danger' icon={<PlusOutlined />}>Add new item</Button>
+                        <Button onClick={handleAddItem}type='danger' icon={<PlusOutlined />}>Add new item</Button>
                     </div>
                 </Col>
             </Row>

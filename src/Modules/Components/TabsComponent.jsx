@@ -1,21 +1,23 @@
 import { Tabs } from 'antd';
-import React from 'react';
+import React, { memo } from 'react';
 import 'antd/dist/antd.css';
 import "../Css/Component.css"
+import TodoListComponent from './TodoListComponent';
+import DoneListComponent from './DoneListComponent';
 
 const { TabPane } = Tabs;
 
-const TabsComponent = () => {
+const TabsComponent = ({handleAddItem}) => {
   return (
     <Tabs defaultActiveKey="1" centered style={{padding : '10px 30px'}}>
       <TabPane tab="Todo" key="1" >
-        Content of Tab Pane 1
+        <TodoListComponent handleAddItem = {handleAddItem} />
       </TabPane>
       <TabPane tab="Done" key="2">
-        Content of Tab Pane 2
+        <DoneListComponent handleAddItem = {handleAddItem}/>
       </TabPane>
     </Tabs>
   );
 }
 
-export default TabsComponent;
+export default memo(TabsComponent);
