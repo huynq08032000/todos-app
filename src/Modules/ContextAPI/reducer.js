@@ -28,6 +28,18 @@ const Reducer = (state, action) => {
                 })
             };
         }
+        case 'UPDATE' : {
+            return {
+                ...state,
+                todos: state.todos.map((todo) => {
+                    if (todo.id === payload.idTodo) {
+                        return { ...todo, name: payload.name, des : payload.des };
+                    } else {
+                        return todo;
+                    }
+                })
+            }
+        }
 
         default:
             return state;

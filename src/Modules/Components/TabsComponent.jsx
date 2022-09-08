@@ -1,4 +1,4 @@
-import { Tabs } from 'antd';
+import { Tabs }from 'antd';
 import React, { memo } from 'react';
 import 'antd/dist/antd.css';
 import "../Css/Component.css"
