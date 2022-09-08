@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import 'antd/dist/antd.css';
 import { EditOutlined , DeleteOutlined } from '@ant-design/icons';
 import { Table, Space, Switch, Button } from 'antd';
+import { Context } from '../ContextAPI/store';
 
-const DoneListComponent = ({handleAddItem}) => {
+const DoneListComponent = () => {
+    const [state, dispatch] = useContext(Context)
     const columns = [
         {
             title: 'ID',
@@ -31,8 +33,19 @@ const DoneListComponent = ({handleAddItem}) => {
             key: 'checked',
             render: (dataIndex) => (
                 <Space size="middle">
-                    <Switch checked={dataIndex.checked} onChange={(dataIndex) => {
-                        console.log(dataIndex.id)
+                    <Switch checked={dataIndex.checked} onChange={() => {
+                        let todoList = localStorage.getItem('todoList');
+                        let arr = JSON.parse(todoList)
+                        console.log(arr)
+                        arr = arr.map((todo) => {
+                            if (todo.id === dataIndex.idTodo) {
+                                return { ...todo, checked: !todo.checked };
+                            } else {
+                                return todo;
+                            }
+                        });
+                        localStorage.setItem('todoList', JSON.stringify(arr)) //update local storage
+                        dispatch({ type: "COMPLETE", payload: dataIndex.idTodo });
                     }} />
                 </Space>
             ),
@@ -55,22 +68,21 @@ const DoneListComponent = ({handleAddItem}) => {
     ];
     const [data, setData] = useState([])
     useEffect(() => {
-        console.log('re-render')
-        if (localStorage.getItem('todoList')) {
-            let data = JSON.parse(localStorage.getItem('todoList')).filter(el => el.checked === true)
+        if (state.todos) {
+            let data = state.todos.filter(el => el.checked === true)
             data = data.map((el, index) => {
                 return {
                     key: index + 1,
                     name: el.name,
                     id: index + 1,
+                    idTodo : el.id,
                     description: el.des,
                     checked: el.checked,
                 }
             })
-            console.log(data)
             setData(data)
         }
-    }, [handleAddItem])
+    }, [state.todos])
     return (
         <div>
             <Table

@@ -1,28 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import '../Css/Component.css'
 import 'antd/dist/antd.css';
 import { Button, Input, Row, Col } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-
+import { Context } from '../ContextAPI/store';
+import {addData} from '../ContextAPI/actions'
 const FormAddComponent = () => {
-    const [formValue, setFormValue] = useState({ name: '', des: '', checked : false })
+    const [formValue, setFormValue] = useState({name: '', des: '', checked: false })
+    const [state, dispatch] = useContext(Context);
     const handleAddItem = () => {
-        console.log('Add item')
-        console.log(formValue)
-        // Add to local storerage, and check localstorerage is context api ? 
+        // Add to globalstate, add localstorerage
         let todoList = localStorage.getItem('todoList');
-        if (todoList){ 
-            let arr = JSON.parse(todoList)
-            arr.push(formValue)
-            localStorage.setItem('todoList', JSON.stringify(arr))
-        } else {
-            localStorage.setItem('todoList', JSON.stringify([formValue]))
+        let arr = JSON.parse(todoList)
+        let lastID = 0;
+        if (arr.length > 0){
+            lastID = arr[arr.length-1].id
         }
+        arr.push({...formValue, id : lastID + 1})
+        localStorage.setItem('todoList', JSON.stringify(arr)) //add localstorage
+        dispatch({type : addData, payload : {...formValue, id : lastID + 1}}) //add to global state
         setFormValue(prevForm => {
             return {
                 ...prevForm,
-                name : '',
-                des : '',
+                name: '',
+                des: '',
             }
         })
     }
@@ -57,7 +58,7 @@ const FormAddComponent = () => {
                 </Col>
                 <Col span={2}>
                     <div className='btn-submit-form'>
-                        <Button onClick={handleAddItem}type='danger' icon={<PlusOutlined />}>Add new item</Button>
+                        <Button onClick={handleAddItem} type='danger' icon={<PlusOutlined />}>Add new item</Button>
                     </div>
                 </Col>
             </Row>

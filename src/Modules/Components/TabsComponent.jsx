@@ -7,14 +7,14 @@ import DoneListComponent from './DoneListComponent';
 
 const { TabPane } = Tabs;
 
-const TabsComponent = ({handleAddItem}) => {
+const TabsComponent = () => {
   return (
     <Tabs defaultActiveKey="1" centered style={{padding : '10px 30px'}}>
       <TabPane tab="Todo" key="1" >
-        <TodoListComponent handleAddItem = {handleAddItem} />
+        <TodoListComponent/>
       </TabPane>
       <TabPane tab="Done" key="2">
-        <DoneListComponent handleAddItem = {handleAddItem}/>
+        <DoneListComponent/>
       </TabPane>
     </Tabs>
   );

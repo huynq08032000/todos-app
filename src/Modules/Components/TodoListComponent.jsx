@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext} from 'react'
 import 'antd/dist/antd.css';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Table, Space, Switch, Button } from 'antd';
-const TodoListComponent = ({handleAddItem}) => {
+import {Context} from '../ContextAPI/store'
+const TodoListComponent = () => {
+    const [state, dispatch] = useContext(Context);
     const columns = [
         {
             title: 'ID',
@@ -31,14 +33,19 @@ const TodoListComponent = ({handleAddItem}) => {
             render: (dataIndex) => (
                 <Space size="middle">
                     <Switch checked={dataIndex.checked} onChange={() => {
-                        const tempData = data.map(todo => {
-                            if (todo.id === dataIndex.id) {
-                                return { ...todo, checked : !todo.checked };
-                              } else {
+                        let todoList = localStorage.getItem('todoList');
+                        let arr = JSON.parse(todoList)
+                        console.log(arr)
+                        arr = arr.map((todo) => {
+                            if (todo.id === dataIndex.idTodo) {
+                                return { ...todo, checked: !todo.checked };
+                            } else {
                                 return todo;
-                              }
-                        })
-                        setData(tempData)
+                            }
+                        });
+                        localStorage.setItem('todoList', JSON.stringify(arr)) //update local storage
+                        dispatch({ type: "COMPLETE", payload: dataIndex.idTodo });
+                        
                     }} />
                 </Space>
             ),
@@ -50,8 +57,8 @@ const TodoListComponent = ({handleAddItem}) => {
             key: 'action',
             render: (dataIndex) => (
                 <Space size="middle">
-                    <Button type="primary" shape="circle" icon={<EditOutlined />} size={'large'} style={{ backgroundColor: 'green' }} onClick={() => { console.log(dataIndex.id) }} />
-                    <Button type="primary" shape="circle" icon={<DeleteOutlined />} size={'large'} danger onClick={() => { console.log(dataIndex.id) }} />
+                    <Button type="primary" shape="circle" icon={<EditOutlined />} size={'large'} style={{ backgroundColor: 'green' }} onClick={() => { console.log(dataIndex.idTodo) }} />
+                    <Button type="primary" shape="circle" icon={<DeleteOutlined />} size={'large'} danger onClick={() => { console.log(dataIndex.idTodo) }} />
                 </Space>
             ),
             align: 'center',
@@ -61,22 +68,21 @@ const TodoListComponent = ({handleAddItem}) => {
     ];
     const [data, setData] = useState([])
     useEffect(() => {
-        console.log('re-render')
-        if (localStorage.getItem('todoList')) {
-            let data = JSON.parse(localStorage.getItem('todoList')).filter(el => el.checked === false)
+        if (state.todos) {
+            let data = state.todos.filter(el => el.checked === false)
             data = data.map((el, index) => {
                 return {
                     key: index + 1,
                     name: el.name,
                     id: index + 1,
+                    idTodo : el.id,
                     description: el.des,
                     checked: el.checked,
                 }
             })
-            console.log(data)
             setData(data)
         }
-    }, [handleAddItem])
+    }, [state.todos])
     return (
         <div>
             <Table

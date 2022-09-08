@@ -1,76 +1,27 @@
-import React, { useState, useCallback} from 'react'
-import '../Css/Component.css'
-import 'antd/dist/antd.css';
-import { Button, Input, Row, Col } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import React, { useContext, useEffect } from 'react'
 import TabsComponent from './TabsComponent';
 import '../Css/Component.css'
+import FormAddComponent from './FormAddComponents';
+import { setData } from '../ContextAPI/actions';
+import { Context } from "../ContextAPI/store";
 const TodoComponent = () => {
-    const [count, setCount] = useState(0)
-    const [formValue, setFormValue] = useState({ name: '', des: '', checked: false })
-    const handleAddItem = useCallback((formValue) => {
-        console.log('Add item')
-        console.log(formValue)
-        // Add to local storerage, and check localstorerage is context api ? 
+    const [state, dispatch] = useContext(Context);
+    useEffect(() => {
         let todoList = localStorage.getItem('todoList');
-        if (todoList) {
+        if (todoList){ 
             let arr = JSON.parse(todoList)
-            arr.push(formValue)
-            localStorage.setItem('todoList', JSON.stringify(arr));
-            setCount(count+1)
+            dispatch({type : setData, payload : arr})
         } else {
-            localStorage.setItem('todoList', JSON.stringify([formValue]))
-            setCount(1)
+            localStorage.setItem('todoList', JSON.stringify([]))
         }
-        setFormValue(prevForm => {
-            return {
-                ...prevForm,
-                name: '',
-                des: '',
-            }
-        })
-    },[count])
+    }, [])
     return (
         <div>
             <div className='header-title'>
                 Todo App
             </div>
-            <div className='form-add-container'>
-                <Row>
-                    <Col span={10} offset={6}>
-                        <div className='form-container'>
-                            <div className='input-wrapper'>
-                                <Input placeholder='Name' size='large' value={formValue.name}
-                                    onChange={(e) => {
-                                        setFormValue((prevForm) => {
-                                            return {
-                                                ...prevForm,
-                                                name: e.target.value
-                                            }
-                                        })
-                                    }} />
-                            </div>
-                            <div className='input-wrapper'>
-                                <Input placeholder='Description' size='large' value={formValue.des}
-                                    onChange={(e) => {
-                                        setFormValue((prevForm) => {
-                                            return {
-                                                ...prevForm,
-                                                des: e.target.value
-                                            }
-                                        })
-                                    }} />
-                            </div>
-                        </div>
-                    </Col>
-                    <Col span={2}>
-                        <div className='btn-submit-form'>
-                            <Button onClick={()=>handleAddItem(formValue)} type='danger' icon={<PlusOutlined />}>Add new item</Button>
-                        </div>
-                    </Col>
-                </Row>
-            </div>
-            <TabsComponent handleAddItem = {handleAddItem}/>
+            <FormAddComponent />
+            <TabsComponent />
         </div>
     )
 }
