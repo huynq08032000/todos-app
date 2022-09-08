@@ -5,11 +5,13 @@ import { Button, Modal, Input } from 'antd';
 import { Context } from '../ContextAPI/store';
 
 const UpdateModal = ({ dataIndex }) => {
+
     const [state, dispatch] = useContext(Context);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [dataUpdate, setDataUpdate] = useState({...dataIndex})
     const showModal = () => {
+        console.log(dataUpdate)
         setOpen(true);
     };
     const handleOk = () => {
@@ -44,10 +46,10 @@ const UpdateModal = ({ dataIndex }) => {
                 onCancel={handleCancel}
                 footer={[
                     <Button key="back" onClick={handleCancel}>
-                        Return
+                        Cancel
                     </Button>,
-                    <Button key="submit" type="primary" loading={confirmLoading} onClick={handleOk}>
-                        Submit
+                    <Button key="submit" type="primary" loading={confirmLoading} onClick={handleOk} style={{backgroundColor : 'green'}}>
+                        Save
                     </Button>,
                 ]}
             >

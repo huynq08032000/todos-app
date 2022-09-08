@@ -5,19 +5,36 @@ import { Table, Space, Switch, Button, Modal, Row, Col, Input } from 'antd';
 import { Context } from '../ContextAPI/store';
 import UpdateModal from './UpdateModal';
 
-const confirm = (data) => {
-    Modal.confirm({
-        title: 'Confirm',
-        icon: <ExclamationCircleOutlined />,
-        content: 'Bla bla ...',
-        okText: 'Delete',
-        cancelText: 'Cancel',
-    });
-    console.log(data)
-};
 const TodoListComponent = () => {
-    const [state, dispatch] = useContext(Context);
+    const [open, setOpen] = useState(false);
+    const [confirmLoading, setConfirmLoading] = useState(false);
+    const [dataUpdate, setDataUpdate] = useState({})
+    const showModal = () => {
+        setOpen(true);
+    };
     const arrTemp = useRef([])
+    const handleOk = () => {
+        setConfirmLoading(true);
+        setTimeout(() => {
+            let arr;
+            arr = arrTemp.current.map((todo) => {
+                if (todo.id === dataUpdate.idTodo) {
+                    return { ...todo, name: dataUpdate.name, des: dataUpdate.des };
+                } else {
+                    return todo;
+                }
+            });
+            localStorage.setItem('todoList', JSON.stringify(arr))
+            dispatch({ type: 'UPDATE', payload: dataUpdate })
+            setOpen(false);
+            setConfirmLoading(false);
+        }, 2000);
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
+    };
+    const [state, dispatch] = useContext(Context);
     const columns = [
         {
             title: 'ID',
@@ -67,16 +84,15 @@ const TodoListComponent = () => {
             key: 'action',
             render: (dataIndex) => (
                 <Space size="middle">
-                    {/* <Button type="primary" shape="circle" icon={<EditOutlined />} size={'large'} style={{ backgroundColor: 'green' }}
+                    <Button type="primary" shape="circle" icon={<EditOutlined />} size={'large'} style={{ backgroundColor: 'green' }}
                         onClick={() => {
                             setDataUpdate({ ...dataIndex })
                             showModal()
-                        }} /> */}
-                    <UpdateModal dataIndex={dataIndex}/>
+                        }} />
+                    {/* <UpdateModal dataIndex={dataIndex}/> */}
                     <Button type="primary" shape="circle" icon={<DeleteOutlined />} size={'large'} danger
                         onClick={() => {
                             console.log(dataIndex.idTodo)
-                            confirm({dataIndex})
                         }}
                     />
                 </Space>
@@ -105,7 +121,7 @@ const TodoListComponent = () => {
             arrTemp.current = arr
             setData(data)
         }
-    }, [state.todos])
+    }, [state])
     return (
         <div>
             <Table
@@ -114,7 +130,46 @@ const TodoListComponent = () => {
                     position: ['none'],
                 }}
                 dataSource={data}
-            />  
+            />
+            <Modal
+                title="Edit"
+                open={open}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" loading={confirmLoading} onClick={handleOk} style={{ backgroundColor: 'green' }}>
+                        Save
+                    </Button>,
+                ]}
+            >
+                <div className='form-container'>
+                    <div className='input-wrapper'>
+                        <Input placeholder='Name' size='large' value={dataUpdate.name}
+                            onChange={(e) => {
+                                setDataUpdate(prevData => {
+                                    return {
+                                        ...prevData,
+                                        name: e.target.value
+                                    }
+                                })
+                            }} />
+                    </div>
+                    <div className='input-wrapper'>
+                        <Input placeholder='Description' size='large' value={dataUpdate.des}
+                            onChange={(e) => {
+                                setDataUpdate(prevData => {
+                                    return {
+                                        ...prevData,
+                                        des: e.target.value
+                                    }
+                                })
+                            }} />
+                    </div>
+                </div>
+            </Modal>
         </div>
     )
 }
