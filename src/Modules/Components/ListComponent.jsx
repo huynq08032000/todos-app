@@ -57,7 +57,7 @@ const ListComponent = ({typeChecked}) => {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
-            width: 80,
+            width: '5%',
         },
         {
             title: 'Name',
@@ -71,8 +71,8 @@ const ListComponent = ({typeChecked}) => {
             title: 'Description',
             dataIndex: 'des',
             key: 'description',
-            ellipsis: true,
-            width: '70%',
+            // ellipsis: true,
+            width: '60%',
         },
         {
             title: 'Checked',
@@ -94,7 +94,7 @@ const ListComponent = ({typeChecked}) => {
                 </Space>
             ),
             align: 'center',
-            width: 100
+            width: '10%',
         },
         {
             title: 'Action',
@@ -116,7 +116,7 @@ const ListComponent = ({typeChecked}) => {
                 </Space>
             ),
             align: 'center',
-            width: 200,
+            width: '10%',
         }
 
     ];
