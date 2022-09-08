@@ -145,9 +145,12 @@ const DoneListComponent = () => {
             <Table
                 columns={columns}
                 pagination={{
-                    position: ['none'],
+                    pageSize: 10,
                 }}
                 dataSource={data}
+                scroll={{
+                    y: 500,
+                }}
             />
             <Modal
                 title="Edit"
@@ -203,8 +206,8 @@ const DoneListComponent = () => {
                 ]}
             >
                 <p>Bạn muốn xóa công việc </p>
-                <p style={{color : 'red', fontWeight : '500'}}>{dataUpdate.name}</p>
-                <p style={{color : 'red', fontWeight : '500'}}>{dataUpdate.des}</p>
+                <p style={{ color: 'red', fontWeight: '500' }}>{dataUpdate.name}</p>
+                <p style={{ color: 'red', fontWeight: '500' }}>{dataUpdate.des}</p>
             </Modal>
         </div>
     )
