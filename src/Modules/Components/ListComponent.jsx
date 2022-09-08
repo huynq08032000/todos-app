@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
 import 'antd/dist/antd.css';
-import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { Table, Space, Switch, Button, Modal, Row, Col, Input } from 'antd';
+import { EditOutlined, DeleteOutlined} from '@ant-design/icons';
+import { Table, Space, Switch, Button, Modal, Input } from 'antd';
 import { Context } from '../ContextAPI/store';
 import UpdateModal from './UpdateModal';
 
-const DoneListComponent = () => {
+const ListComponent = ({typeChecked}) => {
     const [open, setOpen] = useState(false);
     const [openDel, setOpenDel] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
@@ -123,7 +123,7 @@ const DoneListComponent = () => {
     const [data, setData] = useState([])
     useEffect(() => {
         if (state.todos) {
-            let data = state.todos.filter(el => el.checked === true)
+            let data = state.todos.filter(el => el.checked === typeChecked)
             data = data.map((el, index) => {
                 return {
                     key: index + 1,
@@ -213,4 +213,4 @@ const DoneListComponent = () => {
     )
 }
 
-export default DoneListComponent;
+export default ListComponent;
