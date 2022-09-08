@@ -40,6 +40,12 @@ const Reducer = (state, action) => {
                 })
             }
         }
+        case 'DELETE' : {
+            return {
+                ...state, 
+                todos : state.todos.filter(todo => todo.id != payload.idTodo)
+            }
+        }
 
         default:
             return state;

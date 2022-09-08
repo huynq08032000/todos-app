@@ -7,11 +7,15 @@ import UpdateModal from './UpdateModal';
 
 const TodoListComponent = () => {
     const [open, setOpen] = useState(false);
+    const [openDel, setOpenDel] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [dataUpdate, setDataUpdate] = useState({})
     const showModal = () => {
         setOpen(true);
     };
+    const showModalDel = () => {
+        setOpenDel(true);
+    }
     const arrTemp = useRef([])
     const handleOk = () => {
         setConfirmLoading(true);
@@ -30,9 +34,22 @@ const TodoListComponent = () => {
             setConfirmLoading(false);
         }, 2000);
     };
-
+    const handleOkDel = () => {
+        setConfirmLoading(true);
+        setTimeout(() => {
+            let arr;
+            arr = arrTemp.current.filter((todo) => todo.id != dataUpdate.idTodo);
+            localStorage.setItem('todoList', JSON.stringify(arr))
+            dispatch({ type: 'DELETE', payload: dataUpdate })
+            setOpenDel(false);
+            setConfirmLoading(false);
+        }, 2000);
+    }
     const handleCancel = () => {
         setOpen(false);
+    };
+    const handleCancelDel = () => {
+        setOpenDel(false);
     };
     const [state, dispatch] = useContext(Context);
     const columns = [
@@ -92,7 +109,8 @@ const TodoListComponent = () => {
                     {/* <UpdateModal dataIndex={dataIndex}/> */}
                     <Button type="primary" shape="circle" icon={<DeleteOutlined />} size={'large'} danger
                         onClick={() => {
-                            console.log(dataIndex.idTodo)
+                            setDataUpdate({ ...dataIndex })
+                            showModalDel();
                         }}
                     />
                 </Space>
@@ -169,6 +187,24 @@ const TodoListComponent = () => {
                             }} />
                     </div>
                 </div>
+            </Modal>
+            <Modal
+                title="Delete"
+                open={openDel}
+                onOk={handleOkDel}
+                onCancel={handleCancelDel}
+                footer={[
+                    <Button key="back" onClick={handleCancelDel}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" type="primary" loading={confirmLoading} onClick={handleOkDel} danger>
+                        Save
+                    </Button>,
+                ]}
+            >
+                <p>Bạn muốn xóa công việc </p>
+                <p style={{color : 'red', fontWeight : '500'}}>{dataUpdate.name}</p>
+                <p style={{color : 'red', fontWeight : '500'}}>{dataUpdate.des}</p>
             </Modal>
         </div>
     )

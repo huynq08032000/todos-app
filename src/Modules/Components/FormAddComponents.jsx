@@ -4,28 +4,33 @@ import 'antd/dist/antd.css';
 import { Button, Input, Row, Col } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Context } from '../ContextAPI/store';
-import {addData} from '../ContextAPI/actions'
+import { addData } from '../ContextAPI/actions'
 const FormAddComponent = () => {
-    const [formValue, setFormValue] = useState({name: '', des: '', checked: false })
+    const [formValue, setFormValue] = useState({ name: '', des: '', checked: false })
+    const [loading, setLoading] = useState(false)
     const [state, dispatch] = useContext(Context);
     const handleAddItem = () => {
         // Add to globalstate, add localstorerage
-        let todoList = localStorage.getItem('todoList');
-        let arr = JSON.parse(todoList)
-        let lastID = 0;
-        if (arr.length > 0){
-            lastID = arr[arr.length-1].id
-        }
-        arr.push({...formValue, id : lastID + 1})
-        localStorage.setItem('todoList', JSON.stringify(arr)) //add localstorage
-        dispatch({type : addData, payload : {...formValue, id : lastID + 1}}) //add to global state
-        setFormValue(prevForm => {
-            return {
-                ...prevForm,
-                name: '',
-                des: '',
+        setLoading(true)
+        setTimeout(() => {
+            let todoList = localStorage.getItem('todoList');
+            let arr = JSON.parse(todoList)
+            let lastID = 0;
+            if (arr.length > 0) {
+                lastID = arr[arr.length - 1].id
             }
-        })
+            arr.push({ ...formValue, id: lastID + 1 })
+            localStorage.setItem('todoList', JSON.stringify(arr)) //add localstorage
+            dispatch({ type: addData, payload: { ...formValue, id: lastID + 1 } }) //add to global state
+            setLoading(false)
+            setFormValue(prevForm => {
+                return {
+                    ...prevForm,
+                    name: '',
+                    des: '',
+                }
+            })
+        }, 1000)
     }
     return (
         <div className='form-add-container'>
@@ -58,7 +63,7 @@ const FormAddComponent = () => {
                 </Col>
                 <Col span={2}>
                     <div className='btn-submit-form'>
-                        <Button onClick={handleAddItem} type='danger' icon={<PlusOutlined />}>Add new item</Button>
+                        <Button onClick={handleAddItem} type='danger' icon={<PlusOutlined />} loading={loading}>Add new item</Button>
                     </div>
                 </Col>
             </Row>
