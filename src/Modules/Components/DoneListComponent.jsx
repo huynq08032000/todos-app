@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import 'antd/dist/antd.css';
-import { EditOutlined , DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Table, Space, Switch, Button } from 'antd';
 import { Context } from '../ContextAPI/store';
 
 const DoneListComponent = () => {
     const [state, dispatch] = useContext(Context)
+    const arrTemp = useRef([])
     const columns = [
         {
             title: 'ID',
@@ -34,10 +35,8 @@ const DoneListComponent = () => {
             render: (dataIndex) => (
                 <Space size="middle">
                     <Switch checked={dataIndex.checked} onChange={() => {
-                        let todoList = localStorage.getItem('todoList');
-                        let arr = JSON.parse(todoList)
-                        console.log(arr)
-                        arr = arr.map((todo) => {
+                        let arr;
+                        arr = arrTemp.current.map((todo) => {
                             if (todo.id === dataIndex.idTodo) {
                                 return { ...todo, checked: !todo.checked };
                             } else {
@@ -75,11 +74,14 @@ const DoneListComponent = () => {
                     key: index + 1,
                     name: el.name,
                     id: index + 1,
-                    idTodo : el.id,
+                    idTodo: el.id,
                     description: el.des,
                     checked: el.checked,
                 }
             })
+            let todoList = localStorage.getItem('todoList');
+            let arr = JSON.parse(todoList);
+            arrTemp.current = arr
             setData(data)
         }
     }, [state.todos])
@@ -88,7 +90,7 @@ const DoneListComponent = () => {
             <Table
                 columns={columns}
                 pagination={{
-                    position:[`none`],
+                    position: [`none`],
                 }}
                 dataSource={data}
             />
