@@ -34,7 +34,7 @@ const FormAddComponent = () => {
         setLoading(true)
         setTimeout(() => {
             let lastID = 0;
-            if (arr.length > 0) {
+            if (arr && arr.length > 0) {
                 lastID = arr[arr.length - 1].id
             }
             arr.push({ ...formValue, id: lastID + 1 })
