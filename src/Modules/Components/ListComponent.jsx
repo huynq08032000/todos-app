@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
 import 'antd/dist/antd.css';
-import { EditOutlined, DeleteOutlined} from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Table, Space, Switch, Button, Modal, Input } from 'antd';
 import { Context } from '../ContextAPI/store';
 import UpdateModal from './UpdateModal';
 
-const ListComponent = ({typeChecked}) => {
+const ListComponent = ({ typeChecked }) => {
+    const arrTemp = useRef([])
+    const [data, setData] = useState([])
     const [open, setOpen] = useState(false);
     const [openDel, setOpenDel] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
+    const [switchLoading, setSwitchLoading] = useState(false)
     const [dataUpdate, setDataUpdate] = useState({})
     const showModal = () => {
         setOpen(true);
@@ -16,19 +19,17 @@ const ListComponent = ({typeChecked}) => {
     const showModalDel = () => {
         setOpenDel(true);
     }
-    const arrTemp = useRef([])
     const handleOk = () => {
         setConfirmLoading(true);
         setTimeout(() => {
-            let arr;
-            arr = arrTemp.current.map((todo) => {
+            arrTemp.current = arrTemp.current.map((todo) => {
                 if (todo.id === dataUpdate.idTodo) {
                     return { ...todo, name: dataUpdate.name, des: dataUpdate.des };
                 } else {
                     return todo;
                 }
             });
-            localStorage.setItem('todoList', JSON.stringify(arr))
+            localStorage.setItem('todoList', JSON.stringify(arrTemp.current))
             dispatch({ type: 'UPDATE', payload: dataUpdate })
             setOpen(false);
             setConfirmLoading(false);
@@ -37,9 +38,8 @@ const ListComponent = ({typeChecked}) => {
     const handleOkDel = () => {
         setConfirmLoading(true);
         setTimeout(() => {
-            let arr;
-            arr = arrTemp.current.filter((todo) => todo.id != dataUpdate.idTodo);
-            localStorage.setItem('todoList', JSON.stringify(arr))
+            arrTemp.current = arrTemp.current.filter((todo) => todo.id != dataUpdate.idTodo);
+            localStorage.setItem('todoList', JSON.stringify(arrTemp.current))
             dispatch({ type: 'DELETE', payload: dataUpdate })
             setOpenDel(false);
             setConfirmLoading(false);
@@ -56,7 +56,7 @@ const ListComponent = ({typeChecked}) => {
         {
             title: 'ID',
             dataIndex: 'id',
-            key: 'id',
+            key: 'idTodo',
             width: '5%',
         },
         {
@@ -79,17 +79,31 @@ const ListComponent = ({typeChecked}) => {
             key: 'checked',
             render: (dataIndex) => (
                 <Space size="middle">
-                    <Switch checked={dataIndex.checked} onChange={() => {
-                        let arr;
-                        arr = arrTemp.current.map((todo) => {
+                    <Switch loading={switchLoading} checkedChildren="Done" unCheckedChildren="Todo" checked={dataIndex.checked} 
+                    onChange={() => {
+                        setSwitchLoading(true)
+                        arrTemp.current = arrTemp.current.map((todo) => {
                             if (todo.id === dataIndex.idTodo) {
                                 return { ...todo, checked: !todo.checked };
                             } else {
                                 return todo;
                             }
                         });
-                        localStorage.setItem('todoList', JSON.stringify(arr)) //update local storage
-                        dispatch({ type: "COMPLETE", payload: dataIndex.idTodo });
+                        let arr = [...data]
+                        arr = arr.map((todo) => {
+                            if (todo.idTodo === dataIndex.idTodo) {
+                                return { ...todo, checked: !todo.checked };
+                            } else {
+                                return todo;
+                            }
+                        });
+                        setData([...arr])
+                        setTimeout(() => {
+                            localStorage.setItem('todoList', JSON.stringify(arrTemp.current)) //update local storage
+                            dispatch({ type: "COMPLETE", payload: dataIndex.idTodo });
+                            setSwitchLoading(false)
+                        }, 500)
+
                     }} />
                 </Space>
             ),
@@ -120,7 +134,7 @@ const ListComponent = ({typeChecked}) => {
         }
 
     ];
-    const [data, setData] = useState([])
+
     useEffect(() => {
         if (state.todos) {
             let data = state.todos.filter(el => el.checked === typeChecked)
@@ -140,6 +154,7 @@ const ListComponent = ({typeChecked}) => {
             setData(data)
         }
     }, [state])
+
     return (
         <div>
             <Table

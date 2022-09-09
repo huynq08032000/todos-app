@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useMemo } from 'react'
 import '../Css/Component.css'
 import 'antd/dist/antd.css';
 import { Button, Input, Row, Col } from 'antd';
@@ -9,12 +9,15 @@ const FormAddComponent = () => {
     const [formValue, setFormValue] = useState({ name: '', des: '', checked: false })
     const [loading, setLoading] = useState(false)
     const [state, dispatch] = useContext(Context);
+    const arr = useMemo(() => {
+        let todoList = localStorage.getItem('todoList');
+        let arr = JSON.parse(todoList);
+        return arr;
+    }, [state])
     const handleAddItem = () => {
         // Add to globalstate, add localstorerage
         setLoading(true)
         setTimeout(() => {
-            let todoList = localStorage.getItem('todoList');
-            let arr = JSON.parse(todoList)
             let lastID = 0;
             if (arr.length > 0) {
                 lastID = arr[arr.length - 1].id

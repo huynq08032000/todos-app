@@ -6,6 +6,10 @@ export const initialState = {
 const Reducer = (state, action) => {
     const { type, payload } = action;
     switch (type) {
+        case 'GET_TODOS' :
+            return {
+                ...state,
+            }
         case "SET_TODOS":
             return {
                 ...state,
