@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
 import 'antd/dist/antd.css';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Table, Space, Switch, Button, Modal, Input } from 'antd';
+import { Table, Space, Switch, Button, Modal, Input, Typography } from 'antd';
 import { Context } from '../ContextAPI/store';
-import UpdateModal from './UpdateModal';
+import { validateForm, validForm } from '../ultils/validate';
 
 const ListComponent = ({ typeChecked }) => {
+    const { Text } = Typography;
     const arrTemp = useRef([])
     const [data, setData] = useState([])
     const [open, setOpen] = useState(false);
@@ -13,6 +14,7 @@ const ListComponent = ({ typeChecked }) => {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [switchLoading, setSwitchLoading] = useState(false)
     const [dataUpdate, setDataUpdate] = useState({})
+    const [validateValues, setValidateValues] = useState({});
     const showModal = () => {
         setOpen(true);
     };
@@ -20,6 +22,11 @@ const ListComponent = ({ typeChecked }) => {
         setOpenDel(true);
     }
     const handleOk = () => {
+        const validateValues = validateForm(dataUpdate)
+        setValidateValues(validateValues)
+        if (!validForm(validateValues)) {
+            return;
+        }
         setConfirmLoading(true);
         setTimeout(() => {
             arrTemp.current = arrTemp.current.map((todo) => {
@@ -33,6 +40,7 @@ const ListComponent = ({ typeChecked }) => {
             dispatch({ type: 'UPDATE', payload: dataUpdate })
             setOpen(false);
             setConfirmLoading(false);
+            setValidateValues({})
         }, 2000);
     };
     const handleOkDel = () => {
@@ -46,6 +54,7 @@ const ListComponent = ({ typeChecked }) => {
         }, 2000);
     }
     const handleCancel = () => {
+        setValidateValues({})
         setOpen(false);
     };
     const handleCancelDel = () => {
@@ -63,7 +72,7 @@ const ListComponent = ({ typeChecked }) => {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            render: (text) => <span>{text}</span>,
+            render: (text) => <Text>{text}</Text>,
             align: 'center',
             width: '10%',
         },
@@ -79,32 +88,32 @@ const ListComponent = ({ typeChecked }) => {
             key: 'checked',
             render: (dataIndex) => (
                 <Space size="middle">
-                    <Switch loading={switchLoading} checkedChildren="Done" unCheckedChildren="Todo" checked={dataIndex.checked} 
-                    onChange={() => {
-                        setSwitchLoading(true)
-                        arrTemp.current = arrTemp.current.map((todo) => {
-                            if (todo.id === dataIndex.idTodo) {
-                                return { ...todo, checked: !todo.checked };
-                            } else {
-                                return todo;
-                            }
-                        });
-                        let arr = [...data]
-                        arr = arr.map((todo) => {
-                            if (todo.idTodo === dataIndex.idTodo) {
-                                return { ...todo, checked: !todo.checked };
-                            } else {
-                                return todo;
-                            }
-                        });
-                        setData([...arr])
-                        setTimeout(() => {
-                            localStorage.setItem('todoList', JSON.stringify(arrTemp.current)) //update local storage
-                            dispatch({ type: "COMPLETE", payload: dataIndex.idTodo });
-                            setSwitchLoading(false)
-                        }, 500)
+                    <Switch loading={switchLoading} checkedChildren="Done" unCheckedChildren="Todo" checked={dataIndex.checked}
+                        onChange={() => {
+                            setSwitchLoading(true)
+                            arrTemp.current = arrTemp.current.map((todo) => {
+                                if (todo.id === dataIndex.idTodo) {
+                                    return { ...todo, checked: !todo.checked };
+                                } else {
+                                    return todo;
+                                }
+                            });
+                            let arr = [...data]
+                            arr = arr.map((todo) => {
+                                if (todo.idTodo === dataIndex.idTodo) {
+                                    return { ...todo, checked: !todo.checked };
+                                } else {
+                                    return todo;
+                                }
+                            });
+                            setData([...arr])
+                            setTimeout(() => {
+                                localStorage.setItem('todoList', JSON.stringify(arrTemp.current)) //update local storage
+                                dispatch({ type: "COMPLETE", payload: dataIndex.idTodo });
+                                setSwitchLoading(false)
+                            }, 500)
 
-                    }} />
+                        }} />
                 </Space>
             ),
             align: 'center',
@@ -192,6 +201,7 @@ const ListComponent = ({ typeChecked }) => {
                                     }
                                 })
                             }} />
+                        {validateValues && <Text type="danger">{validateValues.nameErr}</Text>}
                     </div>
                     <div className='input-wrapper'>
                         <Input placeholder='Description' size='large' value={dataUpdate.des}
@@ -203,6 +213,7 @@ const ListComponent = ({ typeChecked }) => {
                                     }
                                 })
                             }} />
+                        {validateValues && <Text type="danger">{validateValues.desErr}</Text>}
                     </div>
                 </div>
             </Modal>
@@ -220,9 +231,11 @@ const ListComponent = ({ typeChecked }) => {
                     </Button>,
                 ]}
             >
-                <p>Bạn muốn xóa công việc </p>
-                <p style={{ color: 'red', fontWeight: '500' }}>{dataUpdate.name}</p>
-                <p style={{ color: 'red', fontWeight: '500' }}>{dataUpdate.des}</p>
+                <Space direction="vertical">
+                    <Text type='danger'>Bạn muốn xóa công việc </Text>
+                    <Text>{dataUpdate.name}</Text>
+                    <Text>{dataUpdate.des}</Text>
+                </Space>
             </Modal>
         </div>
     )
