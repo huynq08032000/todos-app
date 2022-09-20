@@ -5,6 +5,17 @@ import { Table, Space, Switch, Button, Modal, Input, Typography } from 'antd';
 import { validateForm, validForm } from '../ultils/validate';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteTodo, setComplete, updateTodo } from '../redux/todoSlice';
+import { useFormik } from "formik";
+import * as yup from "yup";
+
+const validationSchema = yup.object({
+    name: yup
+        .string("Enter name")
+        .required("Name is required"),
+    des: yup
+        .string("Enter description")
+        .required("Description is required")
+});
 
 const ListComponent = ({ typeChecked }) => {
     const { Text } = Typography;
@@ -15,8 +26,17 @@ const ListComponent = ({ typeChecked }) => {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [switchLoading, setSwitchLoading] = useState(false)
     const [dataUpdate, setDataUpdate] = useState({})
-    const [validateValues, setValidateValues] = useState({});
     const dispatch = useDispatch()
+    const formik = useFormik({
+        initialValues: dataUpdate,
+        validationSchema: validationSchema,
+        onSubmit: (values) => {
+            handleOk(values)
+        }
+    })
+    const myHandleChange = (event) => {
+        formik.handleChange(event);
+    };
     const todoList = useSelector(state => state.todoList.todoList)
     const showModal = () => {
         setOpen(true);
@@ -24,27 +44,22 @@ const ListComponent = ({ typeChecked }) => {
     const showModalDel = () => {
         setOpenDel(true);
     }
-    const handleOk = () => {
-        const validateValues = validateForm(dataUpdate)
-        setValidateValues(validateValues)
-        if (!validForm(validateValues)) {
-            return;
-        }
+    const handleOk = (values) => {
         setConfirmLoading(true);
         setTimeout(() => {
             arrTemp.current = arrTemp.current.map((todo) => {
-                if (todo.id === dataUpdate.idTodo) {
-                    return { ...todo, name: dataUpdate.name, des: dataUpdate.des };
+                if (todo.id === values.idTodo) {
+                    return { ...todo, name: values.name, des: values.des };
                 } else {
                     return todo;
                 }
             });
             localStorage.setItem('todoList', JSON.stringify(arrTemp.current))
             // dispatch({ type: 'UPDATE', payload: dataUpdate })
-            dispatch(updateTodo(dataUpdate))
+            dispatch(updateTodo(values))
             setOpen(false);
             setConfirmLoading(false);
-            setValidateValues({})
+            formik.handleReset()
         }, 2000);
     };
     const handleOkDel = () => {
@@ -59,7 +74,7 @@ const ListComponent = ({ typeChecked }) => {
         }, 2000);
     }
     const handleCancel = () => {
-        setValidateValues({})
+        formik.handleReset()
         setOpen(false);
     };
     const handleCancelDel = () => {
@@ -131,7 +146,7 @@ const ListComponent = ({ typeChecked }) => {
                 <Space size="middle">
                     <Button type="primary" shape="circle" icon={<EditOutlined />} size={'large'} style={{ backgroundColor: 'green' }}
                         onClick={() => {
-                            setDataUpdate({ ...dataIndex })
+                            formik.setValues({...dataIndex})
                             showModal()
                         }} />
                     {/* <UpdateModal dataIndex={dataIndex}/> */}
@@ -188,35 +203,19 @@ const ListComponent = ({ typeChecked }) => {
                     <Button key="back" onClick={handleCancel}>
                         Cancel
                     </Button>,
-                    <Button key="submit" type="primary" loading={confirmLoading} onClick={handleOk} style={{ backgroundColor: 'green' }}>
+                    <Button key="submit" type="primary" loading={confirmLoading} onClick={formik.handleSubmit} style={{ backgroundColor: 'green' }}>
                         Save
                     </Button>,
                 ]}
             >
                 <div className='form-container'>
                     <div className='input-wrapper'>
-                        <Input placeholder='Name' size='large' value={dataUpdate.name}
-                            onChange={(e) => {
-                                setDataUpdate(prevData => {
-                                    return {
-                                        ...prevData,
-                                        name: e.target.value
-                                    }
-                                })
-                            }} />
-                        {validateValues && <Text type="danger">{validateValues.nameErr}</Text>}
+                        <Input placeholder='Name' size='large' name='name' value={formik.values.name} onChange={myHandleChange} />
+                        {formik.touched.name && <Text type="danger">{formik.errors.name}</Text>}
                     </div>
                     <div className='input-wrapper'>
-                        <Input placeholder='Description' size='large' value={dataUpdate.des}
-                            onChange={(e) => {
-                                setDataUpdate(prevData => {
-                                    return {
-                                        ...prevData,
-                                        des: e.target.value
-                                    }
-                                })
-                            }} />
-                        {validateValues && <Text type="danger">{validateValues.desErr}</Text>}
+                        <Input placeholder='Description' size='large' name='des' value={formik.values.des} onChange={myHandleChange} />
+                        {formik.touched.des && <Text type="danger">{formik.errors.des}</Text>}
                     </div>
                 </div>
             </Modal>
