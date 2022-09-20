@@ -3,9 +3,10 @@ import '../Css/Component.css'
 import 'antd/dist/antd.css';
 import { Button, Input, Row, Col, message, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { Context } from '../ContextAPI/store';
-import { addData } from '../ContextAPI/actions'
+import { v4 as uuidv4} from 'uuid'
 import { validateForm, validForm } from '../ultils/validate';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTodo } from '../redux/todoSlice';
 
 const FormAddComponent = () => {
     const key = 'updatable';
@@ -13,13 +14,9 @@ const FormAddComponent = () => {
     const [formValue, setFormValue] = useState({ name: '', des: '', checked: false })
     const [validateValues, setValidateValues] = useState({});
     const [loading, setLoading] = useState(false)
-    const [state, dispatch] = useContext(Context);
-
-    const arr = useMemo(() => {
-        let todoList = localStorage.getItem('todoList');
-        let arr = JSON.parse(todoList);
-        return arr;
-    }, [state])
+    // const [state, dispatch] = useContext(Context);
+    const todoList = useSelector(state => state.todoList.todoList)
+    const dispatch = useDispatch()
     const handleAddItem = () => {
         const validateValues = validateForm(formValue)
         setValidateValues(validateValues)
@@ -28,18 +25,15 @@ const FormAddComponent = () => {
         }
         // Add to globalstate, add localstorerage
         message.loading({
-            content: 'Addding...',
+            content: 'Adding...',
             key,
           },100);
         setLoading(true)
         setTimeout(() => {
-            let lastID = 0;
-            if (arr && arr.length > 0) {
-                lastID = arr[arr.length - 1].id
-            }
-            arr.push({ ...formValue, id: lastID + 1 })
+            const arr = [...todoList]
+            arr.push({...formValue, id : uuidv4()})
             localStorage.setItem('todoList', JSON.stringify(arr)) //add localstorage
-            dispatch({ type: addData, payload: { ...formValue, id: lastID + 1 } }) //add to global state
+            dispatch(addTodo({...formValue, id : uuidv4()})) //add to global state
             message.success({
                 content : 'Adding success',
                 key,

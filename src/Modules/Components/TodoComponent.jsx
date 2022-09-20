@@ -2,19 +2,22 @@ import React, { useContext, useEffect } from 'react'
 import TabsComponent from './TabsComponent';
 import '../Css/Component.css'
 import FormAddComponent from './FormAddComponents';
-import { setData } from '../ContextAPI/actions';
-import { Context } from "../ContextAPI/store";
+import { useDispatch } from 'react-redux';
+import { setTodo } from '../redux/todoSlice';
 const TodoComponent = () => {
-    const [state, dispatch] = useContext(Context);
+
+    const dispatch = useDispatch()
+
     useEffect(() => {
         let todoList = localStorage.getItem('todoList');
         if (todoList){ 
             let arr = JSON.parse(todoList)
-            dispatch({type : setData, payload : arr})
+            dispatch(setTodo(arr))
         } else {
             localStorage.setItem('todoList', JSON.stringify([]))
         }
     }, [])
+    
     return (
         <div>
             <div className='header-title'>

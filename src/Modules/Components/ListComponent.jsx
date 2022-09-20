@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import 'antd/dist/antd.css';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Table, Space, Switch, Button, Modal, Input, Typography } from 'antd';
-import { Context } from '../ContextAPI/store';
 import { validateForm, validForm } from '../ultils/validate';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteTodo, setComplete, updateTodo } from '../redux/todoSlice';
 
 const ListComponent = ({ typeChecked }) => {
     const { Text } = Typography;
@@ -15,6 +16,8 @@ const ListComponent = ({ typeChecked }) => {
     const [switchLoading, setSwitchLoading] = useState(false)
     const [dataUpdate, setDataUpdate] = useState({})
     const [validateValues, setValidateValues] = useState({});
+    const dispatch = useDispatch()
+    const todoList = useSelector(state => state.todoList.todoList)
     const showModal = () => {
         setOpen(true);
     };
@@ -37,7 +40,8 @@ const ListComponent = ({ typeChecked }) => {
                 }
             });
             localStorage.setItem('todoList', JSON.stringify(arrTemp.current))
-            dispatch({ type: 'UPDATE', payload: dataUpdate })
+            // dispatch({ type: 'UPDATE', payload: dataUpdate })
+            dispatch(updateTodo(dataUpdate))
             setOpen(false);
             setConfirmLoading(false);
             setValidateValues({})
@@ -48,7 +52,8 @@ const ListComponent = ({ typeChecked }) => {
         setTimeout(() => {
             arrTemp.current = arrTemp.current.filter((todo) => todo.id != dataUpdate.idTodo);
             localStorage.setItem('todoList', JSON.stringify(arrTemp.current))
-            dispatch({ type: 'DELETE', payload: dataUpdate })
+            // dispatch({ type: 'DELETE', payload: dataUpdate })
+            dispatch(deleteTodo(dataUpdate))
             setOpenDel(false);
             setConfirmLoading(false);
         }, 2000);
@@ -60,7 +65,6 @@ const ListComponent = ({ typeChecked }) => {
     const handleCancelDel = () => {
         setOpenDel(false);
     };
-    const [state, dispatch] = useContext(Context);
     const columns = [
         {
             title: 'ID',
@@ -109,7 +113,8 @@ const ListComponent = ({ typeChecked }) => {
                             setData([...arr])
                             setTimeout(() => {
                                 localStorage.setItem('todoList', JSON.stringify(arrTemp.current)) //update local storage
-                                dispatch({ type: "COMPLETE", payload: dataIndex.idTodo });
+                                //dispatch
+                                dispatch(setComplete(dataIndex.idTodo))
                                 setSwitchLoading(false)
                             }, 500)
 
@@ -145,8 +150,8 @@ const ListComponent = ({ typeChecked }) => {
     ];
 
     useEffect(() => {
-        if (state.todos) {
-            let data = state.todos.filter(el => el.checked === typeChecked)
+        if (todoList) {
+            let data = todoList.filter(el => el.checked === typeChecked)
             data = data.map((el, index) => {
                 return {
                     key: index + 1,
@@ -157,12 +162,10 @@ const ListComponent = ({ typeChecked }) => {
                     checked: el.checked,
                 }
             })
-            let todoList = localStorage.getItem('todoList');
-            let arr = JSON.parse(todoList);
-            arrTemp.current = arr
+            arrTemp.current = [...todoList]
             setData(data)
         }
-    }, [state])
+    }, [todoList])
 
     return (
         <div>
